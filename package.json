@@ -1,0 +1,48 @@
+{
+    "name": "market-research-dashboard",
+    "version": "1.0.0",
+    "description": "A comprehensive, interactive market research dashboard with data visualization and actionable insights",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx serve .",
+        "dev": "npx live-server .",
+        "build": "echo 'No build process required - static HTML/CSS/JS'",
+        "test": "echo 'No tests specified'",
+        "deploy": "echo 'Deploy to your preferred hosting service'"
+    },
+    "keywords": [
+        "market-research",
+        "dashboard",
+        "data-visualization",
+        "analytics",
+        "business-intelligence",
+        "charts",
+        "tailwind-css",
+        "javascript",
+        "html5",
+        "responsive-design"
+    ],
+    "author": "Your Name <your.email@example.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/market-research-dashboard.git"
+    },
+    "bugs": {
+        "url": "https://github.com/yourusername/market-research-dashboard/issues"
+    },
+    "homepage": "https://github.com/yourusername/market-research-dashboard#readme",
+    "devDependencies": {
+        "live-server": "^1.2.2",
+        "serve": "^14.2.0"
+    },
+    "dependencies": {},
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ],
+    "engines": {
+        "node": ">=14.0.0"
+    }
+}

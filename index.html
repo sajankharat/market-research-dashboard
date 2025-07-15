@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Research Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/dashboard.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .sidebar-active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Header -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-chart-line text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold">Market Research Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="exportBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-download mr-2"></i>Export Report
+                    </button>
+                    <button id="refreshBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg h-screen sticky top-0">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="#overview" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all sidebar-active">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Overview
+                    </a>
+                    <a href="#industry-trends" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i class="fas fa-chart-line mr-3"></i>Industry Trends
+                    </a>
+                    <a href="#customer-segments" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i class="fas fa-users mr-3"></i>Customer Segments
+                    </a>
+                    <a href="#competitive-landscape" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i class="fas fa-chess mr-3"></i>Competitive Landscape
+                    </a>
+                    <a href="#regional-analysis" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i class="fas fa-globe mr-3"></i>Regional Analysis
+                    </a>
+                    <a href="#recommendations" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i class="fas fa-lightbulb mr-3"></i>Recommendations
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Market Overview</h2>
+                    <p class="text-gray-600">Key performance indicators and market insights at a glance</p>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div id="kpi-cards" class="contents">
+                        <!-- KPI cards will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Market Size Breakdown</h3>
+                        <div class="chart-container">
+                            <canvas id="marketSizeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Revenue Growth Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="revenueGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Industry Trends Section -->
+            <section id="industry-trends" class="dashboard-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Industry Trends</h2>
+                    <p class="text-gray-600">Comprehensive analysis of market trends and emerging opportunities</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Revenue Trends (2019-2024)</h3>
+                        <div class="chart-container">
+                            <canvas id="industryRevenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Emerging Trends Impact</h3>
+                        <div class="chart-container">
+                            <canvas id="emergingTrendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trends Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4">Trend Analysis & Insights</h3>
+                    <div id="trends-analysis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Trend cards will be dynamically generated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Segments Section -->
+            <section id="customer-segments" class="dashboard-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Customer Segments</h2>
+                    <p class="text-gray-600">Detailed analysis of customer demographics and behavior patterns</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Segment Performance</h3>
+                        <div class="chart-container">
+                            <canvas id="segmentPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Channel Preferences</h3>
+                        <div class="chart-container">
+                            <canvas id="channelPreferenceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Segment Details -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4">Segment Details</h3>
+                    <div class="overflow-x-auto">
+                        <table id="segments-table" class="min-w-full table-auto">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Segment</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size (%)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue ($M)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satisfaction</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Churn Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="segments-tbody" class="bg-white divide-y divide-gray-200">
+                                <!-- Table rows will be dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Competitive Landscape Section -->
+            <section id="competitive-landscape" class="dashboard-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Competitive Landscape</h2>
+                    <p class="text-gray-600">Market share analysis and competitive positioning insights</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Market Share Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="marketShareChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Competitor Growth Rates</h3>
+                        <div class="chart-container">
+                            <canvas id="competitorGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SWOT Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover mb-8">
+                    <h3 class="text-xl font-semibold mb-4">SWOT Analysis</h3>
+                    <div id="swot-analysis" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- SWOT quadrants will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Competitor Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4">Competitor Analysis</h3>
+                    <div id="competitor-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Competitor cards will be dynamically generated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Regional Analysis Section -->
+            <section id="regional-analysis" class="dashboard-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Regional Analysis</h2>
+                    <p class="text-gray-600">Geographic market performance and opportunities</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Regional Revenue Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="regionalRevenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4">Growth Rate by Region</h3>
+                        <div class="chart-container">
+                            <canvas id="regionalGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regional Performance Table -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4">Regional Performance Metrics</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue ($M)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Growth Rate</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Market Share</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opportunity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regional-tbody" class="bg-white divide-y divide-gray-200">
+                                <!-- Table rows will be dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendations Section -->
+            <section id="recommendations" class="dashboard-section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Strategic Recommendations</h2>
+                    <p class="text-gray-600">Actionable insights and strategic recommendations based on market analysis</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Priority Recommendations -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4 text-red-600">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>High Priority Actions
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-red-500 pl-4">
+                                <h4 class="font-semibold">Strengthen Competitive Position</h4>
+                                <p class="text-gray-600 text-sm">Focus on differentiating features and value proposition to compete with market leaders.</p>
+                                <span class="text-xs text-gray-500">Impact: High | Effort: Medium</span>
+                            </div>
+                            <div class="border-l-4 border-red-500 pl-4">
+                                <h4 class="font-semibold">Expand in High-Growth Regions</h4>
+                                <p class="text-gray-600 text-sm">Prioritize Asia Pacific and Middle East & Africa for expansion opportunities.</p>
+                                <span class="text-xs text-gray-500">Impact: High | Effort: High</span>
+                            </div>
+                            <div class="border-l-4 border-red-500 pl-4">
+                                <h4 class="font-semibold">Reduce Customer Churn</h4>
+                                <p class="text-gray-600 text-sm">Implement retention strategies for price-conscious segments.</p>
+                                <span class="text-xs text-gray-500">Impact: Medium | Effort: Low</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medium Priority Recommendations -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4 text-yellow-600">
+                            <i class="fas fa-clock mr-2"></i>Medium Priority Actions
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <h4 class="font-semibold">AI Integration Initiative</h4>
+                                <p class="text-gray-600 text-sm">Develop AI-powered features to stay competitive with emerging trends.</p>
+                                <span class="text-xs text-gray-500">Impact: High | Effort: High</span>
+                            </div>
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <h4 class="font-semibold">SMB Market Penetration</h4>
+                                <p class="text-gray-600 text-sm">Develop targeted solutions for growing SMB segment.</p>
+                                <span class="text-xs text-gray-500">Impact: Medium | Effort: Medium</span>
+                            </div>
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <h4 class="font-semibold">Partnership Strategy</h4>
+                                <p class="text-gray-600 text-sm">Strengthen partner channel to increase market reach.</p>
+                                <span class="text-xs text-gray-500">Impact: Medium | Effort: Medium</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategic Initiatives -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Strategic Initiatives Roadmap</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-rocket text-blue-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-2">Q1 2025</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Launch competitive analysis program</li>
+                                <li>• Implement customer retention initiatives</li>
+                                <li>• Begin AI integration planning</li>
+                            </ul>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-2">Q2-Q3 2025</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Expand into high-growth regions</li>
+                                <li>• Launch SMB-focused products</li>
+                                <li>• Strengthen partner ecosystem</li>
+                            </ul>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-trophy text-purple-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-2">Q4 2025</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Deploy AI-powered features</li>
+                                <li>• Evaluate market position gains</li>
+                                <li>• Plan 2026 strategic initiatives</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Metrics -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4">Success Metrics & KPIs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">25%</div>
+                            <div class="text-sm text-gray-600">Target Market Share</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">15%</div>
+                            <div class="text-sm text-gray-600">Revenue Growth Target</div>
+                        </div>
+                        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                            <div class="text-2xl font-bold text-yellow-600">10%</div>
+                            <div class="text-sm text-gray-600">Churn Reduction Goal</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600">4.5</div>
+                            <div class="text-sm text-gray-600">Customer Satisfaction Target</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading dashboard data...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/data/market-data.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
