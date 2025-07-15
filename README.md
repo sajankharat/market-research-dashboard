@@ -2,7 +2,7 @@
 
 A comprehensive, interactive market research dashboard built with HTML, CSS, JavaScript, and Tailwind CSS. This dashboard provides deep insights into industry trends, customer segments, competitive landscape, and regional analysis with actionable recommendations.
 
-![Dashboard Preview](https://market-research-dashboard-app.netlify.app/)
+[Dashboard Preview](https://market-research-dashboard-app.netlify.app/)
 
 ## 🚀 Features
 
