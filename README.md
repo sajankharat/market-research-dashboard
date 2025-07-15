@@ -243,31 +243,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Font Awesome** - For comprehensive icon library
 - **ApexCharts** - For advanced charting capabilities
 
-## 📞 Support
-
-For support, questions, or feature requests:
-- Create an issue on GitHub
-- Email: support@yourcompany.com
-- Documentation: [Wiki](https://github.com/yourusername/market-research-dashboard/wiki)
-
-## 🗺️ Roadmap
-
-### Version 2.0 (Planned)
-- [ ] Real-time data integration
-- [ ] Advanced filtering and search
-- [ ] Custom dashboard builder
-- [ ] Multi-language support
-- [ ] Dark mode theme
-- [ ] Advanced export options (PDF, Excel)
-- [ ] User authentication and permissions
-- [ ] API integration capabilities
-
-### Version 1.1 (Next Release)
-- [ ] Mobile app companion
-- [ ] Enhanced accessibility features
-- [ ] Performance optimizations
-- [ ] Additional chart types
-- [ ] Improved print layouts
 
 ## 📊 Sample Data Sources
 
